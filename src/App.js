@@ -1,67 +1,91 @@
-import React, { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
+import {fetchImages} from "./api";
 
-const Image = ({ url }) => {
+function Header() {
+  return (
+    <header className="hero is-link is-bold">
+      <div className="hero-body">
+        <div className="container">
+          <h1 className="title">Random Cat GIF</h1>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Image(props) {
   return (
     <div className="card">
       <div className="card-image">
         <figure className="image">
-          <img alt="cute dog!" src={url} />
+          <img src={props.src} alt="cute dog!" />
         </figure>
       </div>
     </div>
   );
-};
+}
 
-const Content = ({ data }) => {
-  if (data == null) {
-    return (
-      <div className="content">
-        <p>loading...</p>
-      </div>
-    );
+function Loading(){
+  return <p>Loading...</p>;
+}
+
+function Gallery(props) {
+  const { urls } = props;
+  if ( urls == null){
+    return <Loading />;
   }
   return (
     <div className="columns is-vcentered is-multiline">
-      {data.message.map((url, i) => {
+      {urls.map( (url) => {
         return (
-          <div className="column is-3">
-            <Image key={i} url={url} />
+          <div key={url} className="column is-3">
+            <Image src={url} />
           </div>
         );
       })}
     </div>
   );
-};
+}
 
-const App = () => {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    fetch("https://dog.ceo/api/breeds/image/random/12")
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-      });
+function Main() {
+  const [urls, setUrls] = useState(null);
+  useEffect( () => {
+    fetchImages("pug").then((urls) => {
+      setUrls(urls);
+    });
   }, []);
-
   return (
-    <div>
-      <section className="hero">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">
-              Cute Dog Images from{" "}
-              <a href="https://dog.ceo/dog-api/">Dog API</a>
-            </h1>
-          </div>
-        </div>
-      </section>
+    <main>
       <section className="section">
         <div className="container">
-          <Content data={data} />
+          <Gallery urls={urls} />
         </div>
       </section>
+    </main>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="content has-text-centered">
+        <p>Dog images are retrieved from Cat API</p>
+        <p>
+          <a href="https://thecatapi.com/about">Donate to Cat API</a>
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  return (
+    <div>
+      <Header />
+      <Main />
+      <Footer />
     </div>
   );
-};
+}
 
 export default App;
